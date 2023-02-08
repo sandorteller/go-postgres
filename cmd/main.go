@@ -6,14 +6,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "secret"
-	dbname   = "postgres"
-)
-
 type Balance struct {
 	accountId int
 	balance   int
@@ -28,7 +20,7 @@ func main() {
 	CheckError(err)
 
 	// close database
-	//defer db.Close()
+	defer db.Close()
 
 	// check db
 	err = db.Ping()
@@ -38,17 +30,7 @@ func main() {
 
 	var balance = Balance{1, 123}
 	insertBalance(db, &balance)
-}
-
-func insertBalance(db *sql.DB, balance *Balance) {
-	// dynamic insert
-	insertDynStmt := `insert into "balance"("account_id", "balance") values($1, $2)`
-	_, e := db.Exec(insertDynStmt, balance.accountId, balance.balance)
-	CheckError(e)
-}
-
-func CheckError(err error) {
-	if err != nil {
-		panic(err)
-	}
+	updateBalance(db, balance.accountId)
+	getAllBalances(db)
+	deleteBalance(db, balance.accountId)
 }
